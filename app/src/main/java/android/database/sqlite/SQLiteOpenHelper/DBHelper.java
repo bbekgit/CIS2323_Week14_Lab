@@ -1,10 +1,12 @@
-package android.database.sqlite.SQLiteOpenHelper;
+package com.example.svc_okc_bt228.cis2323_week14_lab;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.Nullable;
+import java.util.ArrayList;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -35,7 +37,29 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(DB_COLUMN,task);
-        db.insertWithOnConflict(DB_NAME, null, values,5);
+        db.insertWithOnConflict(DB_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        db.close();
+    }
+
+    public ArrayList<String> getTaskList(){
+        ArrayList<String> taskList = new ArrayList<>();
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query(DB_NAME, new String[]{DB_COLUMN}, null, null, null, null, null);
+
+        while(cursor.moveToNext()){
+            int index = cursor.getColumnIndex(DB_COLUMN);
+            taskList.add(cursor.getString(index));
+        }
+
+        cursor.close();
+        db.close();
+
+        return taskList;
+    }
+
+    public void deleteTask(String task){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(DB_NAME, DB_COLUMN + " =d ?", new String[]{task} );
         db.close();
     }
 }
